@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chess Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .chess-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            width: 400px;
+            height: 400px;
+            gap: 0;
+        }
+        .chess-board div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+        }
+        .chess-board .black {
+            background-color: #769656;
+        }
+        .chess-board .white {
+            background-color: #eeeed2;
+        }
+        .selected {
+            outline: 3px solid red;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="text-center">
+        <h1 class="text-4xl font-bold mb-8">Chess Game</h1>
+        <div class="chess-board" id="chessBoard">
+            <!-- Chess pieces will be generated here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const board = document.getElementById('chessBoard');
+        let selectedSquare = null;
+
+        // Initial board setup
+        const initialBoardState = [
+            ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
+            ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+            ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
+        ];
+
+        let boardState = JSON.parse(JSON.stringify(initialBoardState));
+
+        // Render the chessboard
+        function renderBoard() {
+            board.innerHTML = ''; // Clear the board
+            boardState.forEach((row, rowIndex) => {
+                row.forEach((piece, colIndex) => {
+                    const square = document.createElement('div');
+                    square.classList.add((rowIndex + colIndex) % 2 === 0 ? 'white' : 'black');
+                    square.dataset.row = rowIndex;
+                    square.dataset.col = colIndex;
+                    square.innerHTML = piece || '';
+                    board.appendChild(square);
+                });
+            });
+        }
+
+        // Handle square selection and movement
+        board.addEventListener('click', (event) => {
+            const target = event.target;
+            const row = parseInt(target.dataset.row);
+            const col = parseInt(target.dataset.col);
+
+            if (!selectedSquare) {
+                // Select a piece if it exists
+                if (boardState[row][col]) {
+                    selectedSquare = target;
+                    selectedSquare.classList.add('selected');
+                }
+            } else {
+                // Move the selected piece to the new location
+                const startRow = parseInt(selectedSquare.dataset.row);
+                const startCol = parseInt(selectedSquare.dataset.col);
+
+                // Move piece to the target square
+                boardState[row][col] = boardState[startRow][startCol];
+                boardState[startRow][startCol] = null;
+
+                // Deselect and render updated board
+                selectedSquare.classList.remove('selected');
+                selectedSquare = null;
+                renderBoard();
+            }
+        });
+
+        renderBoard(); // Initial render
+    </script>
+</body>
+</html>
